@@ -133,10 +133,23 @@ export class CourseCreateComponent implements OnInit {
     return options.filter(option => option.toLowerCase().includes(filterValue));
   }
 
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
   onSubmit(): void {
     if (this.courseForm.valid) {
-      this.courseService.createCourse(this.courseForm.value).subscribe(() => {
+      const formValue = this.courseForm.value;
+      const formattedCourse = {
+        ...formValue,
+        start_date: this.formatDate(formValue.start_date),
+        end_date: this.formatDate(formValue.end_date)
+      };
+      
+      this.courseService.createCourse(formattedCourse).subscribe(() => {
         this.router.navigate(['course']);
+      }, error => {
+        console.error('Error adding course', error);
       });
     }
   }
