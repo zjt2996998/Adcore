@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: course-backend
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+      - redis
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: course-frontend
+    command: ng serve --host 0.0.0.0 --poll 2000
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+
+  # MongoDB service
+  mongo:
+    image: mongo:latest
+    container_name: course-mongo
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  # Redis service
+  redis:
+    image: redis:latest
+    container_name: course-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongo_data:
+    driver: local
